@@ -177,6 +177,109 @@
         .btn-link:hover {
             opacity: 0.8;
         }
+
+        /* Add these styles in your existing <style> section */
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-control, .form-select {
+            border: 1.5px solid #e0e0e0;
+            padding: 0.8rem 1rem;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: #fff;
+            border-color: #198754;
+            box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.1);
+        }
+
+        .form-label {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            transition: all 0.3s ease;
+            padding: 0 0.5rem;
+            color: #6c757d;
+            pointer-events: none;
+        }
+
+        .form-control:focus ~ .form-label,
+        .form-control:not(:placeholder-shown) ~ .form-label,
+        .form-select:focus ~ .form-label,
+        .form-select:not([value=""]) ~ .form-label {
+            top: 0;
+            transform: translateY(-50%) scale(0.85);
+            background: #fff;
+            color: #198754;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .form-group textarea ~ .form-label {
+            top: 1rem;
+            transform: none;
+        }
+
+        .form-group textarea:focus ~ .form-label,
+        .form-group textarea:not(:placeholder-shown) ~ .form-label {
+            top: -0.5rem;
+            transform: scale(0.85);
+        }
+
+        .health-status-group {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .health-radio {
+            display: none;
+        }
+
+        .health-label {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1.5px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .health-radio:checked + .health-label {
+            background: #198754;
+            color: white;
+            border-color: #198754;
+        }
+
+        .btn-submit {
+            background: #198754;
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 10px;
+            width: 100%;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .btn-submit:hover {
+            background: #146c43;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(25, 135, 84, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -231,58 +334,79 @@
             <h2 style="margin-bottom: 20px;">Add New Plant</h2>
             <form id="userForm" onsubmit="submitForm(event)">
                 <div class="form-group">
-                    <label for="id">ID:</label>
-                    <input type="text" id="id" name="id" class="form-control" required>
+                    <input type="text" id="id" name="id" class="form-control" placeholder=" " required>
+                    <label for="id" class="form-label">ID</label>
                 </div>
                 <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" class="form-control" required>
+                    <input type="text" id="name" name="name" class="form-control" placeholder=" " required>
+                    <label for="name" class="form-label">Plant Name</label>
                 </div>
                 <div class="form-group">
-                    <label for="species">Species:</label>
-                    <input type="text" id="species" name="species" class="form-control" required>
+                    <input type="text" id="species" name="species" class="form-control" placeholder=" " required>
+                    <label for="species" class="form-label">Species</label>
                 </div>
                 <div class="form-group">
-                    <label for="imageURL">Image URL:</label>
-                    <input type="url" id="imageURL" name="imageURL" class="form-control">
+                    <input type="url" id="imageURL" name="imageURL" class="form-control" placeholder=" ">
+                    <label for="imageURL" class="form-label">Image URL</label>
                 </div>
                 <div class="form-group">
-                    <label for="notes">Notes:</label>
-                    <textarea id="notes" name="notes" class="form-control"></textarea>
+                    <textarea id="notes" name="notes" class="form-control" rows="3" placeholder=" "></textarea>
+                    <label for="notes" class="form-label">Notes</label>
                 </div>
+                
                 <div class="form-group">
-                    <label for="waterNeeds">Water Needs:</label>
                     <select id="waterNeeds" name="waterNeeds" class="form-select" required>
-                        <option value="">Select Water Needs</option>
+                        <option value="">Select option</option>
                         <option value="low">Low</option>
                         <option value="medium">Medium</option>
                         <option value="high">High</option>
                     </select>
+                    <label for="waterNeeds" class="form-label">Water Needs</label>
                 </div>
+                
                 <div class="form-group">
-                    <label for="sunNeeds">Sun Needs:</label>
                     <select id="sunNeeds" name="sunNeeds" class="form-select" required>
-                        <option value="">Select Sun Needs</option>
+                        <option value="">Select option</option>
                         <option value="fullSun">Full Sun</option>
                         <option value="partialSun">Partial Sun</option>
                         <option value="shade">Shade</option>
                     </select>
+                    <label for="sunNeeds" class="form-label">Sun Needs</label>
                 </div>
+
                 <div class="form-group">
-                    <label for="healthStatus">Health Status:</label>
-                    <select id="healthStatus" name="healthStatus" class="form-select" required>
-                        <option value="">Select Health Status</option>
-                        <option value="excellent">Excellent</option>
-                        <option value="good">Good</option>
-                        <option value="fair">Fair</option>
-                        <option value="poor">Poor</option>
-                    </select>
+                    <label class="d-block mb-2">Health Status</label>
+                    <div class="health-status-group">
+                        <input type="radio" class="health-radio" name="healthStatus" id="excellent" value="excellent" required>
+                        <label for="excellent" class="health-label">
+                            <i class="fas fa-heart"></i> Excellent
+                        </label>
+
+                        <input type="radio" class="health-radio" name="healthStatus" id="good" value="good">
+                        <label for="good" class="health-label">
+                            <i class="fas fa-smile"></i> Good
+                        </label>
+
+                        <input type="radio" class="health-radio" name="healthStatus" id="fair" value="fair">
+                        <label for="fair" class="health-label">
+                            <i class="fas fa-meh"></i> Fair
+                        </label>
+
+                        <input type="radio" class="health-radio" name="healthStatus" id="poor" value="poor">
+                        <label for="poor" class="health-label">
+                            <i class="fas fa-frown"></i> Poor
+                        </label>
+                    </div>
                 </div>
+
                 <div class="form-group">
-                    <label for="photoCount">Photo Count:</label>
-                    <input type="number" id="photoCount" name="photoCount" class="form-control" min="0" value="0">
+                    <input type="number" id="photoCount" name="photoCount" class="form-control" min="0" value="0" placeholder=" ">
+                    <label for="photoCount" class="form-label">Photo Count</label>
                 </div>
-                <button type="submit" class="btn btn-success w-100">Submit</button>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-plus-circle me-2"></i>Add Plant
+                </button>
             </form>
         </div>
     </div>

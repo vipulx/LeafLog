@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Plant Information Form</title>
+    <style>
+        .form-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        .card-content {
+            margin-top: 10px;
+        }
+        .fetch-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .fetch-button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <form id="userForm" onsubmit="submitForm(event)">
+            <div class="form-group">
+                <label for="id">ID:</label>
+                <input type="text" id="id" name="id" required>
+            </div>
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="species">Species:</label>
+                <input type="text" id="species" name="species" required>
+            </div>
+            <div class="form-group">
+                <label for="imageURL">Image URL:</label>
+                <input type="url" id="imageURL" name="imageURL">
+            </div>
+            <div class="form-group">
+                <label for="notes">Notes:</label>
+                <textarea id="notes" name="notes"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="waterNeeds">Water Needs:</label>
+                <select id="waterNeeds" name="waterNeeds" required>
+                    <option value="">Select Water Needs</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="sunNeeds">Sun Needs:</label>
+                <select id="sunNeeds" name="sunNeeds" required>
+                    <option value="">Select Sun Needs</option>
+                    <option value="fullSun">Full Sun</option>
+                    <option value="partialSun">Partial Sun</option>
+                    <option value="shade">Shade</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="healthStatus">Health Status:</label>
+                <select id="healthStatus" name="healthStatus" required>
+                    <option value="">Select Health Status</option>
+                    <option value="excellent">Excellent</option>
+                    <option value="good">Good</option>
+                    <option value="fair">Fair</option>
+                    <option value="poor">Poor</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="photoCount">Photo Count:</label>
+                <input type="number" id="photoCount" name="photoCount" min="0" value="0">
+            </div>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <button class="fetch-button" onclick="fetchPlantData()">Load Plant Data</button>
+    <div id="cards-container" class="cards-container"></div>
+
+    <script>
+        function submitForm(e) {
+            e.preventDefault();
+            const form = document.getElementById('userForm');
+            const formData = new FormData(form);
+            
+            // Add LastUpdate field with current timestamp
+            formData.append('lastUpdate', new Date().toISOString());
+            
+            // Convert FormData to URL-encoded string
+            const data = [...formData.entries()]
+                .map(x => `${encodeURIComponent(x[0])}=${encodeURIComponent(x[1])}`)
+                .join('&');
+            
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbzJeQGlnLYY5zkOcLdsIJqfO7Oc2GLy6JzEaeSh2qIUj9KxbQRScrpAILsdHarb65bM/exec';
+
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: data
+            })
+            .then(response => {
+                alert('Plant information submitted successfully!');
+                form.reset();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting form');
+            });
+        }
+
+        async function fetchPlantData() {
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbyHhEtMcWBiUvCN974Bx456NMjQAqXeF7JiL7KxWbswhEqUpyH2r6z3Xrn_PURBoIH8/exec'; // Use your deployment URL
+            try {
+                const response = await fetch(scriptURL);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const plants = await response.json();
+                
+                console.log('Fetched plants:', plants); // Debug line
+                
+                if (Array.isArray(plants)) {
+                    displayPlants(plants);
+                } else {
+                    throw new Error('Invalid data format received');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('cards-container').innerHTML = 
+                    `<p style="text-align: center; color: red;">Error loading plants: ${error.message}</p>`;
+            }
+        }
+
+        function displayPlants(plants) {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+            
+            plants.forEach(plant => {
+                console.log('Plant data:', plant); // Debug line to see the data structure
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    ${plant.imageURL ? `<img src="${plant.imageURL}" alt="${plant.name || 'Plant'}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">` : ''}
+                    <div class="card-content">
+                        <h3>${plant.name || 'Unnamed Plant'}</h3>
+                        <p><strong>ID:</strong> ${plant.id || 'N/A'}</p>
+                        <p><strong>Species:</strong> ${plant.species || 'N/A'}</p>
+                        <p><strong>Water Needs:</strong> ${plant.waterNeeds || 'N/A'}</p>
+                        <p><strong>Sun Needs:</strong> ${plant.sunNeeds || 'N/A'}</p>
+                        <p><strong>Health Status:</strong> ${plant.healthStatus || 'N/A'}</p>
+                        <p><strong>Photo Count:</strong> ${plant.photoCount || '0'}</p>
+                        <p><strong>Last Updated:</strong> ${plant.lastUpdate ? new Date(plant.lastUpdate).toLocaleDateString() : 'N/A'}</p>
+                        ${plant.notes ? `<p><strong>Notes:</strong> ${plant.notes}</p>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // If no plants are displayed, show a message
+            if (plants.length === 0) {
+                container.innerHTML = '<p style="text-align: center;">No plants found</p>';
+            }
+        }
+    </script>
+</body>
+</html>

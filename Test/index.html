@@ -490,8 +490,10 @@
             if (event.target === detailsModal) {
                 closeDetailsModal();
             }
-            // Close search panel when clicking outside
-            if (!event.target.closest('.navbar') || event.target.closest('#searchInput') || event.target.closest('#filterSelect')) {
+            // Close search panel when clicking outside navbar and panel
+            if (!event.target.closest('.navbar') && 
+                !event.target.closest('#searchFilterPanel') && 
+                !event.target.closest('.search-filter-panel')) {
                 searchFilterPanel.classList.remove('show');
             }
         }

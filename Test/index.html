@@ -23,8 +23,8 @@
             max-width: 1400px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); /* Reduced from 300px to 250px */
+            gap: 15px;
         }
 
         .card {
@@ -32,8 +32,9 @@
             border-radius: 8px;
             background: white;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
+            transition: all 0.2s;
             height: 100%;
+            cursor: pointer;
         }
 
         .card:hover {
@@ -42,13 +43,18 @@
 
         .card img {
             width: 100%;
-            height: 200px;
+            height: 150px; /* Reduced from 200px */
             object-fit: cover;
             border-radius: 8px 8px 0 0;
         }
 
         .card-content {
-            padding: 15px;
+            padding: 10px; /* Reduced from 15px */
+        }
+
+        .card-content h3 {
+            font-size: 1.1rem; /* Smaller title */
+            margin-bottom: 5px;
         }
 
         .status-badge {
@@ -107,6 +113,28 @@
 
         .btn-success:hover {
             background: #146c43;
+        }
+
+        /* Add styles for the details modal */
+        .details-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .details-content {
+            background: white;
+            margin: 2% auto;
+            padding: 20px;
+            border-radius: 16px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -197,6 +225,14 @@
         </div>
     </div>
 
+    <!-- Details Modal -->
+    <div id="plantDetailsModal" class="details-modal">
+        <div class="details-content">
+            <span class="close" onclick="closeDetailsModal()">&times;</span>
+            <div id="plantDetailsContent"></div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function openModal() {
@@ -277,13 +313,11 @@
                         <h3>${plant.name || 'Unnamed Plant'}</h3>
                         <span class="status-badge ${statusClass}">${plant.healthStatus || 'N/A'}</span>
                         <p><strong>Species:</strong> ${plant.species || 'N/A'}</p>
-                        <p><strong>Water Needs:</strong> ${plant.waterNeeds || 'N/A'}</p>
-                        <p><strong>Sun Needs:</strong> ${plant.sunNeeds || 'N/A'}</p>
-                        <p><strong>Last Updated:</strong> ${plant.lastUpdate ? 
-                            new Date(plant.lastUpdate).toLocaleDateString() : 'N/A'}</p>
-                        ${plant.notes ? `<p><small>${plant.notes}</small></p>` : ''}
                     </div>
                 `;
+                
+                // Add click event to show details
+                card.addEventListener('click', () => showPlantDetails(plant));
                 container.appendChild(card);
             });
 
@@ -292,11 +326,58 @@
             }
         }
 
-        window.onload = fetchPlantData;
+        function addDetailsModal() {
+            const modalHTML = `
+                <div id="plantDetailsModal" class="details-modal">
+                    <div class="details-content">
+                        <span class="close" onclick="closeDetailsModal()">&times;</span>
+                        <div id="plantDetailsContent"></div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function showPlantDetails(plant) {
+            const modal = document.getElementById('plantDetailsModal');
+            const content = document.getElementById('plantDetailsContent');
+            
+            content.innerHTML = `
+                <h2>${plant.name || 'Unnamed Plant'}</h2>
+                <div class="details-grid">
+                    <img src="${plant.imageURL || 'https://via.placeholder.com/300x200?text=No+Image'}" 
+                         alt="${plant.name}" style="max-width: 100%; border-radius: 8px; margin-bottom: 15px;">
+                    <span class="status-badge status-${plant.healthStatus || 'fair'}">${plant.healthStatus || 'N/A'}</span>
+                    <p><strong>Species:</strong> ${plant.species || 'N/A'}</p>
+                    <p><strong>Water Needs:</strong> ${plant.waterNeeds || 'N/A'}</p>
+                    <p><strong>Sun Needs:</strong> ${plant.sunNeeds || 'N/A'}</p>
+                    <p><strong>Last Updated:</strong> ${plant.lastUpdate ? 
+                        new Date(plant.lastUpdate).toLocaleDateString() : 'N/A'}</p>
+                    ${plant.notes ? `<p><strong>Notes:</strong><br>${plant.notes}</p>` : ''}
+                    <p><strong>Photo Count:</strong> ${plant.photoCount || '0'}</p>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('plantDetailsModal').style.display = 'none';
+        }
+
+        window.onload = function() {
+            fetchPlantData();
+            addDetailsModal();
+        }
 
         window.onclick = function(event) {
-            if (event.target === document.getElementById('plantModal')) {
+            const plantModal = document.getElementById('plantModal');
+            const detailsModal = document.getElementById('plantDetailsModal');
+            if (event.target === plantModal) {
                 closeModal();
+            }
+            if (event.target === detailsModal) {
+                closeDetailsModal();
             }
         }
     </script>

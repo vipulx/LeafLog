@@ -136,6 +136,19 @@
             max-height: 90vh;
             overflow-y: auto;
         }
+
+        .input-group-text {
+            border: none;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #198754;
+            box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+        }
+
+        #searchInput, #filterSelect {
+            border-radius: 0 8px 8px 0;
+        }
     </style>
 </head>
 <body>
@@ -145,6 +158,34 @@
             <a class="navbar-brand" href="#"><i class="fas fa-leaf"></i> Plant Inventory Manager</a>
         </div>
     </nav>
+
+    <!-- Search and Filter -->
+    <div class="container-fluid mt-2">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-success text-white">
+                        <i class="fas fa-search"></i>
+                    </span>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search plants...">
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-success text-white">
+                        <i class="fas fa-filter"></i>
+                    </span>
+                    <select id="filterSelect" class="form-select">
+                        <option value="all">All Plants</option>
+                        <option value="excellent">Excellent Health</option>
+                        <option value="good">Good Health</option>
+                        <option value="fair">Fair Health</option>
+                        <option value="poor">Poor Health</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Cards Container -->
     <div id="cards-container" class="cards-container"></div>
@@ -275,6 +316,24 @@
             });
         }
 
+        function filterAndDisplayPlants(plants) {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterValue = document.getElementById('filterSelect').value;
+            
+            const filteredPlants = plants.filter(plant => {
+                const matchesSearch = plant.name?.toLowerCase().includes(searchTerm) || 
+                                    plant.species?.toLowerCase().includes(searchTerm);
+                const matchesFilter = filterValue === 'all' || plant.healthStatus === filterValue;
+                
+                return matchesSearch && matchesFilter;
+            });
+            
+            displayPlants(filteredPlants);
+        }
+
+        // Update the fetchPlantData function to store plants globally
+        let allPlants = [];
+
         async function fetchPlantData() {
             const scriptURL = 'https://script.google.com/macros/s/AKfycbyHhEtMcWBiUvCN974Bx456NMjQAqXeF7JiL7KxWbswhEqUpyH2r6z3Xrn_PURBoIH8/exec';
             try {
@@ -285,7 +344,8 @@
                 const plants = await response.json();
                 
                 if (Array.isArray(plants)) {
-                    displayPlants(plants);
+                    allPlants = plants; // Store plants globally
+                    filterAndDisplayPlants(plants);
                 } else {
                     throw new Error('Invalid data format received');
                 }
@@ -368,6 +428,15 @@
         window.onload = function() {
             fetchPlantData();
             addDetailsModal();
+            
+            // Add event listeners for search and filter
+            document.getElementById('searchInput').addEventListener('input', () => {
+                filterAndDisplayPlants(allPlants);
+            });
+            
+            document.getElementById('filterSelect').addEventListener('change', () => {
+                filterAndDisplayPlants(allPlants);
+            });
         }
 
         window.onclick = function(event) {
